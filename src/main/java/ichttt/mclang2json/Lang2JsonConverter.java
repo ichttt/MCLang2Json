@@ -66,19 +66,6 @@ public class Lang2JsonConverter {
         return FileParseResult.ABORT;
     }
 
-    private static Path getOutput(File file) {
-        String fileString = file.toString();
-        if (fileString.endsWith(".lang"))
-            fileString = fileString.substring(0, fileString.length() - ".lang".length());
-        fileString = fileString.concat(".json");
-        Path outputPath = Paths.get(fileString);
-        if (file.isFile())
-            prevPath = outputPath.getParent();
-        else
-            prevPath = outputPath;
-        return outputPath;
-    }
-
     public static String parseFile(JFrame parent) throws IOException {
         JFileChooser chooser = new JFileChooser(prevPath.toFile());
         chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -103,7 +90,20 @@ public class Lang2JsonConverter {
         return null;
     }
 
-    private static JsonWriter parse(File file, File output) throws IOException {
+    private static Path getOutput(File file) {
+        String fileString = file.toString();
+        if (fileString.endsWith(".lang"))
+            fileString = fileString.substring(0, fileString.length() - ".lang".length());
+        fileString = fileString.concat(".json");
+        Path outputPath = Paths.get(fileString);
+        if (file.isFile())
+            prevPath = outputPath.getParent();
+        else
+            prevPath = outputPath;
+        return outputPath;
+    }
+
+    private static void parse(File file, File output) throws IOException {
         BufferedReader reader = null;
         JsonWriter writer = null;
         try {
@@ -121,12 +121,15 @@ public class Lang2JsonConverter {
                     extraIndent = true;
                     continue;
                 }
-                if (split.length < 2) throw new RuntimeException("Invalid line " + line);
 
-                String key = split[0];
+                if (split.length < 2)
+                    throw new RuntimeException("Invalid line " + line);
+
+                String key = remapKey(split[0]);
                 StringBuilder value = new StringBuilder();
                 for (int i = 1; i < split.length; i++)
                     value.append(split[i]);
+
                 writer.name(key).value(value.toString());
                 if (extraIndent) {
                     extraIndent = false;
@@ -139,7 +142,15 @@ public class Lang2JsonConverter {
             tryClose(reader);
             tryClose(writer);
         }
-        return writer;
+    }
+
+    private static String remapKey(String key) {
+        if (key.startsWith("item.") && key.endsWith(".name")) {
+            return key.substring(0, key.length() - ".name".length()); //very basic remapping
+        } else if (key.startsWith("tile.") && key.endsWith(".name")) {
+            return "block".concat(key.substring("tile".length(), key.length() - ".name".length()));
+        }
+        return key;
     }
 
     private static void tryClose(Closeable closeable) {

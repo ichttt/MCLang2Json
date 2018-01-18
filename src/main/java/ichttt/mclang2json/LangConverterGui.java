@@ -13,7 +13,6 @@ public class LangConverterGui implements ActionListener {
     private static final JPanel panel = new JPanel();
     private static final JLabel intendLabel = new JLabel("Intend:");
     private static final JComboBox<String> intents = new JComboBox<>(ALLOWED_INTENT);
-    private static final JButton exit = setupButton("exit");
     private static final JButton convertFolder = setupButton("convert folder");
     private static final JButton convertFile = setupButton("convert file");
 
@@ -24,13 +23,8 @@ public class LangConverterGui implements ActionListener {
 
         GridBagConstraints layout = new GridBagConstraints();
         layout.gridx = 1;
-        layout.gridy = 3;
-        layout.gridwidth = 2;
-        layout.weightx = 1;
-        layout.weighty = 0.3;
+        layout.weighty = 0.5;
         layout.fill = GridBagConstraints.BOTH;
-        panel.add(exit, layout);
-
         layout.gridy = 1;
         layout.gridwidth = 1;
         layout.weightx = 0.5;
@@ -76,9 +70,7 @@ public class LangConverterGui implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent event) {
-        if (event.getSource() == exit) {
-            System.exit(0);
-        } else if (event.getSource() == convertFolder) {
+        if (event.getSource() == convertFolder) {
             Lang2JsonConverter.FileParseResult result = Lang2JsonConverter.parseFolder(frame);
             switch (result) {
                 case SUCCESS:
