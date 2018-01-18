@@ -1,0 +1,14 @@
+repositories  {
+    mavenCentral()
+}
+
+apply plugin: 'maven'
+apply plugin: 'java'
+
+sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
+group = "ichttt"
+version = "1.0"
+
+dependencies {
+    compile 'com.google.code.gson:gson:2.8.2'
+}
