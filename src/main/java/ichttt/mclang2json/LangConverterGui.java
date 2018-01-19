@@ -9,7 +9,7 @@ import java.io.IOException;
 public class LangConverterGui implements ActionListener {
     private static final LangConverterGui INSTANCE = new LangConverterGui();
     private static final String[] ALLOWED_INTENT = new String[] {"2x Space", "4x Space", "1x Tab"}; //remember to sync getIntent
-    private static final JFrame frame = new JFrame("Minecraft Lang2Json Converter");
+    private static final JFrame frame = new JFrame("Minecraft Lang2Json Converter - Version " + Lang2JsonConverter.VERSION);
     private static final JPanel panel = new JPanel();
     private static final JLabel intendLabel = new JLabel("Intend:");
     private static final JComboBox<String> intents = new JComboBox<>(ALLOWED_INTENT);
@@ -80,7 +80,7 @@ public class LangConverterGui implements ActionListener {
                     JOptionPane.showMessageDialog(frame, "Could not find any lang files in the folder " + Lang2JsonConverter.prevPath, "Could not convert", JOptionPane.WARNING_MESSAGE);
                     break;
                 case ABORT:
-                    JOptionPane.showMessageDialog(frame, "Action cancelled as no directory has been chosen");
+//                    JOptionPane.showMessageDialog(frame, "Action cancelled as no directory has been chosen");
                     break;
                 case ERRORS:
                     JOptionPane.showMessageDialog(frame, "There were errors parsing some files. Please see the log for more information", "Could not convert", JOptionPane.ERROR_MESSAGE);
