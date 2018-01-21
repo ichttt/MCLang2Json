@@ -11,8 +11,8 @@ public class LangConverterGui implements ActionListener {
     private static final String[] ALLOWED_INTENT = new String[] {"2x Space", "4x Space", "1x Tab"}; //remember to sync getIntent
     private static final JFrame frame = new JFrame("Minecraft Lang2Json Converter - Version " + Lang2JsonConverter.VERSION);
     private static final JPanel panel = new JPanel();
-    private static final JLabel intendLabel = new JLabel("Intend:");
-    private static final JComboBox<String> intents = new JComboBox<>(ALLOWED_INTENT);
+    private static final JLabel intendLabel = setupBase(new JLabel("Intend:"));
+    private static final JComboBox<String> intents = setupBase(new JComboBox<>(ALLOWED_INTENT));
     private static final JButton convertFolder = setupButton("convert folder");
     private static final JButton convertFile = setupButton("convert file");
 
@@ -51,7 +51,13 @@ public class LangConverterGui implements ActionListener {
     private static JButton setupButton(String name) {
         JButton button = new JButton(name);
         button.addActionListener(INSTANCE);
-        return button;
+        return setupBase(button);
+    }
+
+    private static <T extends Component> T setupBase(T base) {
+        Font font = base.getFont();
+        base.setFont(new Font(font.getName(), font.getStyle(), 24));
+        return base;
     }
 
     public static String getIntent() {
