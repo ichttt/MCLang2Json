@@ -15,6 +15,7 @@ public class LangConverterGui implements ActionListener {
     private static final JComboBox<String> intents = setupBase(new JComboBox<>(ALLOWED_INTENT));
     private static final JButton convertFolder = setupButton("convert folder");
     private static final JButton convertFile = setupButton("convert file");
+    private static final JCheckBox keepComment = setupBase(new JCheckBox("Keep Comments"));
 
     public static void init() {
         panel.setLayout(new GridBagLayout());
@@ -41,6 +42,14 @@ public class LangConverterGui implements ActionListener {
         layout.weightx = 0.7;
         layout.gridx = 2;
         panel.add(intents, layout);
+
+        layout.gridy = 3;
+        layout.gridx = 1;
+        layout.weighty = 0.2;
+        layout.gridwidth = 2;
+        keepComment.setSelected(true);
+        keepComment.setToolTipText("Converts lang file comments (lines starting with #) to json with key _comment.\nThis can produce jsons with duplicate _comment keys");
+        panel.add(keepComment, layout);
 
         frame.setMinimumSize(new Dimension(160, 100));
         frame.setPreferredSize(new Dimension(480, 270));
@@ -77,7 +86,7 @@ public class LangConverterGui implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent event) {
         if (event.getSource() == convertFolder) {
-            Lang2JsonConverter.FileParseResult result = Lang2JsonConverter.parseFolder(frame);
+            Lang2JsonConverter.FileParseResult result = Lang2JsonConverter.parseFolder(frame, keepComment.isSelected());
             switch (result) {
                 case SUCCESS:
                     JOptionPane.showMessageDialog(frame, "Successfully converted all files in the folder " + Lang2JsonConverter.prevPath);
@@ -86,6 +95,7 @@ public class LangConverterGui implements ActionListener {
                     JOptionPane.showMessageDialog(frame, "Could not find any lang files in the folder " + Lang2JsonConverter.prevPath, "Could not convert", JOptionPane.WARNING_MESSAGE);
                     break;
                 case ABORT:
+                    System.out.println("Canceling");
 //                    JOptionPane.showMessageDialog(frame, "Action cancelled as no directory has been chosen");
                     break;
                 case ERRORS:
@@ -93,15 +103,15 @@ public class LangConverterGui implements ActionListener {
                     break;
             }
         } else if (event.getSource() == convertFile) {
-            String newFileName = saveParseFile();
+            String newFileName = safeParseFile();
             if (newFileName != null)
                 JOptionPane.showMessageDialog(frame, "Successfully created " + newFileName);
         }
     }
 
-    private static String saveParseFile() {
+    private static String safeParseFile() {
         try {
-            return Lang2JsonConverter.parseFile(frame);
+            return Lang2JsonConverter.parseFile(frame, keepComment.isSelected());
         } catch (IOException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(frame, "Could not convert file: IO error" +

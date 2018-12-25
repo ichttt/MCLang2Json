@@ -10,7 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class Lang2JsonConverter {
-    public static final String VERSION = "1.4";
+    public static final String VERSION = "1.5";
     public enum FileParseResult {
         SUCCESS, NO_LANG_FILES, ABORT, ERRORS
     }
@@ -21,7 +21,7 @@ public class Lang2JsonConverter {
         LangConverterGui.init();
     }
 
-    public static FileParseResult parseFolder(JFrame parent) {
+    public static FileParseResult parseFolder(JFrame parent, boolean keepComments) {
         JFileChooser chooser = new JFileChooser(prevPath.toFile());
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         if (chooser.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION) {
@@ -33,6 +33,7 @@ public class Lang2JsonConverter {
             File[] files = dir.listFiles();
             if (files == null || files.length == 0)
                 return FileParseResult.NO_LANG_FILES;
+            System.out.println("Starting conversion of folder " + dir.getName() + "...");
             boolean didRun = false;
             boolean errors = false;
             for (File f : files) {
@@ -40,8 +41,9 @@ public class Lang2JsonConverter {
                 if (!fileName.endsWith(".lang"))
                     continue;
                 Path output = getOutput(f);
+                System.out.println("Converting " + f.getName() + "...");
                 try {
-                    parse(f, output.toFile());
+                    parse(f, output.toFile(), keepComments);
                 } catch (IOException e) {
                     System.err.println("Could not convert file: IO error");
                     e.printStackTrace();
@@ -63,7 +65,7 @@ public class Lang2JsonConverter {
         return FileParseResult.ABORT;
     }
 
-    public static String parseFile(JFrame parent) throws IOException {
+    public static String parseFile(JFrame parent, boolean keepComments) throws IOException {
         JFileChooser chooser = new JFileChooser(prevPath.toFile());
         chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         chooser.setFileFilter(new FileFilter() {
@@ -81,7 +83,8 @@ public class Lang2JsonConverter {
         if (chooser.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION) {
             File file = chooser.getSelectedFile();
             Path output = getOutput(file);
-            parse(file, output.toFile());
+            System.out.println("Converting " + file.getName() + "...");
+            parse(file, output.toFile(), keepComments);
             return output.toString();
         }
         return null;
@@ -100,7 +103,7 @@ public class Lang2JsonConverter {
         return outputPath;
     }
 
-    private static void parse(File file, File output) throws IOException {
+    private static void parse(File file, File output, boolean keepComments) throws IOException {
         BufferedReader reader = null;
         JsonWriter writer = null;
         try {
@@ -125,7 +128,12 @@ public class Lang2JsonConverter {
                     line = line.substring(1);
                 }
                 if (line.trim().charAt(0) == '#') {
-                    System.out.println("WARNING: Cannot convert comment " + line + ", skipping!");
+                    if (keepComments) {
+                        System.out.println("Remapping comment line " + line);
+                        writer.name("_comment").value(line.substring(line.indexOf('#')));
+                    } else {
+                        System.out.println("Removing comment line " + line);
+                    }
                     continue;
                 }
 
@@ -133,6 +141,10 @@ public class Lang2JsonConverter {
                     throw new RuntimeException("Invalid line " + line);
 
                 String key = remapKey(split[0]);
+                if (key == null)
+                    key = split[0];
+                else
+                    System.out.println("Remapping key " + split[0] + " to " + split[1]);
                 StringBuilder value = new StringBuilder();
                 for (int i = 1; i < split.length; i++)
                     value.append(split[i]);
@@ -157,7 +169,7 @@ public class Lang2JsonConverter {
         } else if (key.startsWith("tile.") && key.endsWith(".name")) {
             return "block".concat(key.substring("tile".length(), key.length() - ".name".length()));
         }
-        return key;
+        return null;
     }
 
     private static void tryClose(Closeable closeable) {
