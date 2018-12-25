@@ -4,12 +4,8 @@ import com.google.gson.stream.JsonWriter;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
-import java.io.BufferedReader;
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -108,8 +104,8 @@ public class Lang2JsonConverter {
         BufferedReader reader = null;
         JsonWriter writer = null;
         try {
-            reader = new BufferedReader(new FileReader(file));
-            writer = new JsonWriter(new FileWriter(output));
+            reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
+            writer = new JsonWriter(new OutputStreamWriter(new FileOutputStream(output), StandardCharsets.UTF_8));
             writer.beginObject();
             String BASE_INTENT = LangConverterGui.getIntent();
             writer.setIndent(BASE_INTENT);
@@ -124,7 +120,11 @@ public class Lang2JsonConverter {
                     continue;
                 }
 
-                if (line.charAt(0) == '#') {
+                if (line.charAt(0) == '\uFEFF') {
+                    System.out.println("Found BOM encoding - Removing BOM");
+                    line = line.substring(1);
+                }
+                if (line.trim().charAt(0) == '#') {
                     System.out.println("WARNING: Cannot convert comment " + line + ", skipping!");
                     continue;
                 }
