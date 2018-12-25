@@ -10,7 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class Lang2JsonConverter {
-    public static final String VERSION = "1.5";
+    public static final String VERSION = "1.6";
     public enum FileParseResult {
         SUCCESS, NO_LANG_FILES, ABORT, ERRORS
     }
@@ -130,7 +130,11 @@ public class Lang2JsonConverter {
                 if (line.trim().charAt(0) == '#') {
                     if (keepComments) {
                         System.out.println("Remapping comment line " + line);
-                        writer.name("_comment").value(line.substring(line.indexOf('#')));
+                        writer.name("_comment").value(line.substring(line.indexOf('#') + 1).trim());
+                        if (extraIndent) {
+                            extraIndent = false;
+                            writer.setIndent(BASE_INTENT);
+                        }
                     } else {
                         System.out.println("Removing comment line " + line);
                     }
