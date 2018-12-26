@@ -10,7 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class Lang2JsonConverter {
-    public static final String VERSION = "1.6";
+    public static final String VERSION = "1.7";
     public enum FileParseResult {
         SUCCESS, NO_LANG_FILES, ABORT, ERRORS
     }
@@ -115,7 +115,7 @@ public class Lang2JsonConverter {
             boolean extraIndent = false;
             String line;
             while ((line = reader.readLine()) != null) {
-                String[] split = line.split("=");
+                String[] split = line.split("=", 2);
 
                 if (line.trim().isEmpty()) {
                     writer.setIndent("\n" + BASE_INTENT);
@@ -141,19 +141,16 @@ public class Lang2JsonConverter {
                     continue;
                 }
 
-                if (split.length < 2)
-                    throw new RuntimeException("Invalid line " + line);
+                if (split.length != 2)
+                    throw new RuntimeException("Invalid line " + line + ", it got split into " + split.length);
 
                 String key = remapKey(split[0]);
                 if (key == null)
                     key = split[0];
                 else
                     System.out.println("Remapping key " + split[0] + " to " + split[1]);
-                StringBuilder value = new StringBuilder();
-                for (int i = 1; i < split.length; i++)
-                    value.append(split[i]);
 
-                writer.name(key).value(value.toString());
+                writer.name(key).value(split[1]);
                 if (extraIndent) {
                     extraIndent = false;
                     writer.setIndent(BASE_INTENT);
