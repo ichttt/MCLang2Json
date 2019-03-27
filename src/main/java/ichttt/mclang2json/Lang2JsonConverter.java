@@ -10,7 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class Lang2JsonConverter {
-    public static final String VERSION = "1.7";
+    public static final String VERSION = "1.8";
     public enum FileParseResult {
         SUCCESS, NO_LANG_FILES, ABORT, ERRORS
     }
