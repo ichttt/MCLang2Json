@@ -5,7 +5,7 @@ This is for all modders so they can convert their .lang files to a .json file as
 
 # Download
 
-Latest binary can be found [here](https://github.com/ichttt/MCLang2Json/releases/latest)
+<h4>[Latest binary can be found here](https://github.com/ichttt/MCLang2Json/releases/latest)</h4>
 
 Just unzip the zip file and run the jar.
 
