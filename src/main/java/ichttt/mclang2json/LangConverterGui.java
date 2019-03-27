@@ -12,11 +12,12 @@ public class LangConverterGui implements ActionListener {
     private static final JFrame frame = new JFrame("Minecraft Lang2Json Converter - Version " + Lang2JsonConverter.VERSION);
     private static final JPanel panel = new JPanel();
     private static final JLabel intendLabel = setupBase(new JLabel("Intend:"));
+    private static final JLabel modidLabel = setupBase(new JLabel("Modid: "));
     private static final JComboBox<String> intents = setupBase(new JComboBox<>(ALLOWED_INTENT));
     private static final JButton convertFolder = setupButton("convert folder");
     private static final JButton convertFile = setupButton("convert file");
     private static final JCheckBox keepComment = setupBase(new JCheckBox("Keep Comments"));
-    private static final JTextField modidField = new JTextField("");
+    private static final JTextField modidField = setupBase(new JTextField(""));
 
     public static void init() {
         panel.setLayout(new GridBagLayout());
@@ -35,11 +36,24 @@ public class LangConverterGui implements ActionListener {
         layout.gridx = 2;
         panel.add(convertFile, layout);
 
+        layout.gridy = 1;
+        layout.gridx = 1;
+        layout.weightx = 0.3;
+        panel.add(modidLabel, layout);
+
+        layout.gridy = 1;
+        layout.gridx = 2;
+        layout.weighty = 0.2;
+        layout.gridwidth = 1;
+        modidField.setToolTipText("mod id of the mod, if available");
+        panel.add(modidField, layout);
+
         layout.gridy = 2;
         layout.gridx = 1;
         layout.weightx = 0.3;
         panel.add(intendLabel, layout);
 
+        layout.gridy = 2;
         layout.weightx = 0.7;
         layout.gridx = 2;
         panel.add(intents, layout);
@@ -47,17 +61,21 @@ public class LangConverterGui implements ActionListener {
         layout.gridy = 3;
         layout.gridx = 1;
         layout.weighty = 0.2;
-        layout.gridwidth = 1;
+        layout.gridwidth = 2;
         keepComment.setSelected(true);
         keepComment.setToolTipText("Converts lang file comments (lines starting with #) to json with key _comment.\nThis can produce jsons with duplicate _comment keys");
         panel.add(keepComment, layout);
-        
-        layout.gridy = 3;
-        layout.gridx = 2;
-        layout.weighty = 0.2;
+
+        layout.gridy = 4;
+        layout.gridx = 1;
+        layout.weightx = 0.5;
+        layout.weighty = 0.5;
         layout.gridwidth = 1;
-        modidField.setToolTipText("mod id of the mod, if available");
-        panel.add(modidField, layout);
+        panel.add(convertFolder, layout);
+
+        layout.gridy = 4;
+        layout.gridx = 2;
+        panel.add(convertFile, layout);
 
         frame.setMinimumSize(new Dimension(160, 100));
         frame.setPreferredSize(new Dimension(480, 270));
@@ -94,7 +112,7 @@ public class LangConverterGui implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent event) {
         if (event.getSource() == convertFolder) {
-            Lang2JsonConverter.FileParseResult result = Lang2JsonConverter.parseFolder(frame, keepComment.isSelected(), modidField.getText());
+            Lang2JsonConverter.FileParseResult result = Lang2JsonConverter.parseFolder(frame, keepComment.isSelected(), modidField.getText().trim());
             switch (result) {
                 case SUCCESS:
                     JOptionPane.showMessageDialog(frame, "Successfully converted all files in the folder " + Lang2JsonConverter.prevPath);
@@ -119,7 +137,7 @@ public class LangConverterGui implements ActionListener {
 
     private static String safeParseFile() {
         try {
-            return Lang2JsonConverter.parseFile(frame, keepComment.isSelected(), modidField.getText());
+            return Lang2JsonConverter.parseFile(frame, keepComment.isSelected(), modidField.getText().trim());
         } catch (IOException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(frame, "Could not convert file: IO error" +

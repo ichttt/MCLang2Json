@@ -148,7 +148,7 @@ public class Lang2JsonConverter {
                 if (key == null)
                     key = split[0];
                 else
-                    System.out.println("Remapping key " + split[0] + " to " + split[1]);
+                    System.out.println("Remapping key " + split[0] + " to " + key);
 
                 writer.name(key).value(split[1]);
                 if (extraIndent) {
@@ -167,17 +167,17 @@ public class Lang2JsonConverter {
     private static String remapKey(String key, String modId) {
         if (key.startsWith("item.") && key.endsWith(".name")) {
       		StringBuilder buf = new StringBuilder("item.");
-      		if (modId != null && !modId.trim().isEmpty()) {
+      		if (modId != null && !modId.isEmpty()) {
       			buf.append(modId).append(".");
       		}
-      		buf.append(key.substring("item.".length(), key.length() - ".name".length())); //very basic remapping
+      		buf.append(key, "item.".length(), key.length() - ".name".length()); //very basic remapping
           return buf.toString(); 
         } else if (key.startsWith("tile.") && key.endsWith(".name")) {
       		StringBuilder buf = new StringBuilder("block.");
-       		if (modId != null && !modId.trim().isEmpty()) {
+       		if (modId != null && !modId.isEmpty()) {
       			buf.append(modId).append(".");
       		}
-       		buf.append(key.substring("tile.".length(), key.length() - ".name".length()));
+       		buf.append(key, "tile.".length(), key.length() - ".name".length());
        		return buf.toString();
         }
         return null;
