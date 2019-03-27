@@ -21,7 +21,7 @@ public class Lang2JsonConverter {
         LangConverterGui.init();
     }
 
-    public static FileParseResult parseFolder(JFrame parent, boolean keepComments) {
+    public static FileParseResult parseFolder(JFrame parent, boolean keepComments, String modid) {
         JFileChooser chooser = new JFileChooser(prevPath.toFile());
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         if (chooser.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION) {
@@ -43,7 +43,7 @@ public class Lang2JsonConverter {
                 Path output = getOutput(f);
                 System.out.println("Converting " + f.getName() + "...");
                 try {
-                    parse(f, output.toFile(), keepComments);
+                    parse(f, output.toFile(), keepComments, modid);
                 } catch (IOException e) {
                     System.err.println("Could not convert file: IO error");
                     e.printStackTrace();
@@ -65,7 +65,7 @@ public class Lang2JsonConverter {
         return FileParseResult.ABORT;
     }
 
-    public static String parseFile(JFrame parent, boolean keepComments) throws IOException {
+    public static String parseFile(JFrame parent, boolean keepComments, String modid) throws IOException {
         JFileChooser chooser = new JFileChooser(prevPath.toFile());
         chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         chooser.setFileFilter(new FileFilter() {
@@ -84,7 +84,7 @@ public class Lang2JsonConverter {
             File file = chooser.getSelectedFile();
             Path output = getOutput(file);
             System.out.println("Converting " + file.getName() + "...");
-            parse(file, output.toFile(), keepComments);
+            parse(file, output.toFile(), keepComments, modid);
             return output.toString();
         }
         return null;
@@ -103,7 +103,7 @@ public class Lang2JsonConverter {
         return outputPath;
     }
 
-    private static void parse(File file, File output, boolean keepComments) throws IOException {
+    private static void parse(File file, File output, boolean keepComments, String modid) throws IOException {
         BufferedReader reader = null;
         JsonWriter writer = null;
         try {
@@ -144,7 +144,7 @@ public class Lang2JsonConverter {
                 if (split.length != 2)
                     throw new RuntimeException("Invalid line " + line + ", it got split into " + split.length);
 
-                String key = remapKey(split[0]);
+                String key = remapKey(split[0], modid);
                 if (key == null)
                     key = split[0];
                 else
@@ -164,11 +164,21 @@ public class Lang2JsonConverter {
         }
     }
 
-    private static String remapKey(String key) {
+    private static String remapKey(String key, String modId) {
         if (key.startsWith("item.") && key.endsWith(".name")) {
-            return key.substring(0, key.length() - ".name".length()); //very basic remapping
+      		StringBuilder buf = new StringBuilder("item.");
+      		if (modId != null && !modId.trim().isEmpty()) {
+      			buf.append(modId).append(".");
+      		}
+      		buf.append(key.substring("item.".length(), key.length() - ".name".length())); //very basic remapping
+          return buf.toString(); 
         } else if (key.startsWith("tile.") && key.endsWith(".name")) {
-            return "block".concat(key.substring("tile".length(), key.length() - ".name".length()));
+      		StringBuilder buf = new StringBuilder("block.");
+       		if (modId != null && !modId.trim().isEmpty()) {
+      			buf.append(modId).append(".");
+      		}
+       		buf.append(key.substring("tile.".length(), key.length() - ".name".length()));
+       		return buf.toString();
         }
         return null;
     }
