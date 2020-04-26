@@ -10,7 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class Lang2JsonConverter {
-    public static final String VERSION = "1.8";
+    public static final String VERSION = "1.9";
     public enum FileParseResult {
         SUCCESS, NO_LANG_FILES, ABORT, ERRORS
     }
@@ -150,7 +150,7 @@ public class Lang2JsonConverter {
                 else
                     System.out.println("Remapping key " + split[0] + " to " + key);
 
-                writer.name(key).value(split[1]);
+                writer.name(key).value(fixupNewline(split[1]));
                 if (extraIndent) {
                     extraIndent = false;
                     writer.setIndent(BASE_INTENT);
@@ -162,6 +162,10 @@ public class Lang2JsonConverter {
             tryClose(reader);
             tryClose(writer);
         }
+    }
+
+    private static String fixupNewline(String s) {
+        return s.replace("\\n", "\n");
     }
 
     private static String remapKey(String key, String modId) {
