@@ -12,3 +12,10 @@ version = "1.0"
 dependencies {
     compile 'com.google.code.gson:gson:2.8.2'
 }
+jar {
+manifest {
+    attributes (
+        'Main-Class': 'ichttt.mclang2json.Lang2JsonConverter'
+    )
+}
+}

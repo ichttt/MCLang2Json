@@ -4,3 +4,7 @@
 build/
 out/
 *.class
+bin
+.classpath
+.settings
+.project
